@@ -1,0 +1,303 @@
+<html>
+
+<head>
+	<title>Personalizza</title>
+	<style>
+		body {
+			font-family: sans-serif;
+			background-color: #000;
+			color: #fff;
+			margin: 0px;
+			overflow: hidden;
+		}
+
+		#info {
+			position: absolute;
+			top: 10;
+			width: 100%;
+			text-align: center;
+		}
+
+		#container {
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+	<script src="lib/three.min.js"></script>
+	<script src="lib/stats.min.js"></script>
+	<script src="lib/Coordinates.js"></script>
+	<script src="lib/OrbitControls.js"></script>
+	<script src="lib/GLTFLoader.js"></script>
+	<script src="lib/Detector.js"></script>
+</head>
+
+<body>
+	<div id="info"> Personalizza la tua scarpa scegliendo i vari colori e materiali!
+		<br><br>
+		<span>Corpo: <select id="body-mat"></select></span>
+		<span>Lacci: <select id="laces-mat"></select></span>
+		<span>Suola: <select id="suola-mat"></select></span>
+		<span>Tacchetti: <select id="tacc-mat"></select></span>
+		<br><br>
+	</div>
+	<div id="container"></div>
+	<script>
+		var container = document.getElementById('container');
+		var scene, renderer, camera, stats, materialsLib, shoeModel, envMap;
+
+		var bodyMatSelect = document.getElementById('body-mat');
+		var lacesMatSelect = document.getElementById('laces-mat');
+		var suolaMatSelect = document.getElementById('suola-mat');
+		var taccMatSelect = document.getElementById('tacc-mat');
+		var shoesParts = {
+			body: [],
+			laces: [],
+			suola: [],
+			tacc: [],
+		};
+
+		function Start() {
+			scene = new THREE.Scene();
+			camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+			renderer = new THREE.WebGLRenderer();
+			renderer.setSize(container.offsetWidth, container.offsetHeight);
+			renderer.setClearColor(0xf0f0f0);
+			container.appendChild(renderer.domElement);
+			// light
+			var light = new THREE.AmbientLight(0xffffff, 0.6);
+			scene.add(light);
+			var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+			directionalLight.castShadow = true;
+			scene.add(directionalLight);
+
+			var light = new THREE.PointLight(0xff0000, 1, 100);
+			light.position.set(0, 50, 0);
+			scene.add(light);
+
+			var path = 'textures/MilkyWay/';
+			var format = '.jpg';
+			envMap = new THREE.CubeTextureLoader().load([
+				path + 'px' + format, path + 'nx' + format,
+				path + 'py' + format, path + 'ny' + format,
+				path + 'pz' + format, path + 'nz' + format
+			]);
+			initShoe();
+			scene.background = envMap;
+			stats = new Stats();
+			stats.domElement.style.position = 'absolute';
+			stats.domElement.style.top = '90%';
+			document.body
+				.appendChild(stats.domElement);
+			camera.position.z = 50;
+			camera.position.y = 50;
+			var controls = new THREE.OrbitControls(camera, container);
+			controls.target.set(0, 1, 0);
+			controls.update();
+			initMaterials();
+			initMaterialSelectionMenus();
+		}
+
+		function initShoe() {
+			var loader = new THREE.GLTFLoader();
+			loader.load(
+				// resource URL
+				'models/scarpa.gltf',
+				// called when the resource is loaded
+				function (gltf) {
+					shoeModel = gltf.scene.children[0];
+					shoeModel.traverse(function (child) {
+						if (child.isMesh) {
+							child.material.envMap = envMap;
+						}
+					});
+					scene.add(shoeModel);
+					corpo = shoeModel.getObjectByName('corpo');
+					lacci = shoeModel.getObjectByName('laces');
+					suola = shoeModel.getObjectByName('suola');
+					tacc = shoeModel.getObjectByName('tacchetti');
+					shoesParts.body.push(corpo);
+					shoesParts.laces.push(lacci);
+					shoesParts.suola.push(suola);
+					shoesParts.tacc.push(tacc);
+					updateMaterials();
+				});
+		}
+
+		function initMaterials() {
+			var texture = new THREE.TextureLoader().load("textures/Camo/Camo_001_COLOR.jpg");
+			texture.wrapS = THREE.RepeatWrapping;
+			texture.wrapT = THREE.RepeatWrapping;
+			texture.repeat.set(4, 4);
+			materialsLib = {
+				body: [
+					new THREE.MeshPhysicalMaterial({
+						color: 0xffffff,
+						map: new THREE.TextureLoader().load("textures/Leather/Leather_005_baseColor.jpg"),
+						nomalMap: new THREE.TextureLoader().load("textures/Leather/Leather_005_normal.jpg"),
+						aoMap: new THREE.TextureLoader().load("textures/Leather/Leather_005_ambientOcclusion.jpg"),
+						envMap: envMap,
+						metalness: 0.5,
+						roughnessMap: new THREE.TextureLoader().load("textures/Leather/Leather_005_roughness.jpg"),
+						side: THREE.DoubleSide,
+						name: 'Pelle'
+					}),
+					new THREE.MeshPhysicalMaterial({
+						color: 0xffffff,
+						map: texture,
+						nomalMap: new THREE.TextureLoader().load("textures/Camo/Camo_001_NRM.jpg"),
+						aoMap: new THREE.TextureLoader().load("textures/Camo/Camo_001_OCC.jpg"),
+						envMap: envMap,
+						metalness: 0.5,
+						roughness: 0.5,
+						side: THREE.DoubleSide,
+						name: 'Camo'
+					}),
+					new THREE.MeshPhysicalMaterial({
+						color: 0xffffff,
+						map: new THREE.TextureLoader().load("textures/yellow.jpg"),
+						//	normalMap: normal,
+						envMap: envMap,
+						metalness: 0.1,
+						roughness: 0.9,
+						side: THREE.DoubleSide,
+						name: 'Giallo'
+					}),
+					new THREE.MeshPhysicalMaterial({
+						color: 0x000000,
+						envMap: envMap,
+						metalness: 0.7,
+						roughness: 0.2,
+						side: THREE.DoubleSide,
+						name: 'Nero lucido'
+					}),
+					new THREE.MeshPhysicalMaterial({
+						color: 0x000000,
+						envMap: envMap,
+						metalness: 0.9,
+						roughness: 0.5,
+						side: THREE.DoubleSide,
+						name: 'Nero'
+					}),
+					new THREE.MeshPhysicalMaterial({
+						color: 0xffffff,
+						envMap: envMap,
+						metalness: 0.2,
+						roughness: 0.5,
+						side: THREE.DoubleSide,
+						name: 'bianco'
+					}),
+				],
+				laces: [
+					new THREE.MeshPhysicalMaterial({
+						color: 0xffffff,
+						envMap: envMap,
+						metalness: 0.1,
+						roughness: 0.9,
+						side: THREE.DoubleSide,
+						name: 'Bianco'
+					}),
+					new THREE.MeshPhysicalMaterial({
+						color: 0xffffff,
+						map: new THREE.TextureLoader().load("textures/yellow.jpg"),
+						envMap: envMap,
+						metalness: 0.1,
+						roughness: 0.9,
+						side: THREE.DoubleSide,
+						name: 'Giallo'
+					}),
+					new THREE.MeshPhysicalMaterial({
+						color: 0xffffff,
+						map: new THREE.TextureLoader().load("textures/Denim.png"),
+						envMap: envMap,
+						metalness: 0.1,
+						roughness: 0.8,
+						name: 'Denim'
+					}),
+					new THREE.MeshPhysicalMaterial({
+						color: 0x00000,
+						envMap: envMap,
+						metalness: 0.2,
+						roughness: 0.8,
+						name: 'Nero'
+					}),
+				],
+				tacc: [
+					new THREE.MeshPhysicalMaterial({
+						color: 0x110011,
+						envMap: envMap,
+						metalness: 0.9,
+						roughness: 0.3,
+						side: THREE.DoubleSide,
+						name: 'Scuro'
+					}),
+					new THREE.MeshPhysicalMaterial({
+						color: 0xffffff,
+						envMap: envMap,
+						metalness: 0.3,
+						roughness: 0.6,
+						side: THREE.DoubleSide,
+						name: 'Chiaro'
+					}),
+				],
+			}
+		}
+
+		function updateMaterials() {
+			var bodyMat = materialsLib.body[bodyMatSelect.selectedIndex];
+			var lacesMat = materialsLib.laces[lacesMatSelect.selectedIndex];
+			var suolaMat = materialsLib.body[suolaMatSelect.selectedIndex];
+			var taccMat = materialsLib.tacc[taccMatSelect.selectedIndex];
+			shoesParts.body.forEach(function (part) {
+				part.material = bodyMat;
+			});
+			shoesParts.laces.forEach(function (part) {
+				part.material = lacesMat;
+			});
+			shoesParts.suola.forEach(function (part) {
+				part.material = suolaMat;
+			});
+			shoesParts.tacc.forEach(function (part) {
+				part.material = taccMat;
+			});
+		}
+
+		function initMaterialSelectionMenus() {
+			function addOption(name, menu) {
+				var option = document.createElement('option');
+				option.text = name;
+				option.value = name;
+				menu.add(option);
+			}
+			materialsLib.body.forEach(function (material) {
+				addOption(material.name, bodyMatSelect);
+			});
+			materialsLib.laces.forEach(function (material) {
+				addOption(material.name, lacesMatSelect);
+			});
+			materialsLib.body.forEach(function (material) {
+				addOption(material.name, suolaMatSelect);
+			});
+			materialsLib.tacc.forEach(function (material) {
+				addOption(material.name, taccMatSelect);
+			});
+			bodyMatSelect.selectedIndex = 0;
+			bodyMatSelect.addEventListener('change', updateMaterials);
+			lacesMatSelect.selectedIndex = 0;
+			lacesMatSelect.addEventListener('change', updateMaterials);
+			suolaMatSelect.selectedIndex = 0;
+			suolaMatSelect.addEventListener('change', updateMaterials);
+			taccMatSelect.selectedIndex = 0;
+			taccMatSelect.addEventListener('change', updateMaterials);
+		}
+
+		function Render() {
+			requestAnimationFrame(Render);
+			stats.update();
+			renderer.render(scene, camera);
+		}
+		Start();
+		Render();
+	</script>
+</body>
+
+</html>

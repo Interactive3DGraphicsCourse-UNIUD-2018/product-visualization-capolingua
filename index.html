@@ -2,42 +2,204 @@
 <html lang="en">
 
 <head>
-	<title></title>
-	<meta charset="utf-8">
-	<meta name="generator" content="Three.js Editor">
-	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<style>
-		body {
-			font-family: sans-serif;
-			font-size: 13px;
-			background-color: #000;
-			margin: 0px;
-		}
-	</style>
-</head>
 
-<body ontouchstart="">
-	<script src="js/three.min.js"></script>
-	<script src="js/app.js"></script>
-	<video controls="controls" width="100%" height="80%" name="Video Name" src="./data/video/Teaser.mov"></video>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-	<script>
-		var loader = new THREE.FileLoader();
-		loader.load('app.json', function (text) {
+    <title>ACME X-1</title>
 
-			var player = new APP.Player();
-			player.load(JSON.parse(text));
-			player.setSize(window.innerWidth, window.innerHeight);
-			player.play();
 
-			document.body.appendChild(player.dom);
+    <!-- Description :  The CSS component of the Bootstrap Framework. -->
 
-			window.addEventListener('resize', function () {
-				player.setSize(window.innerWidth, window.innerHeight);
-			});
 
-		});
-	</script>
-</body>
+<body>
+
+    <link data-fluxlibrary="Bootstrap 3 CSS" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+
+    <!-- Custom CSS -->
+    <link href="css/landing-page.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet"
+        type="text/css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/89/three.min.js"></script>
+    <style>
+        #canva {
+            width: 98.9%;
+            height: 100%;
+            z-index: 0;
+            position: absolute;
+        }
+    </style>
+    </head>
+
+    <body>
+        <div id="canva"></div>
+        <script>
+            var container = document.getElementById("canva");
+            var camera, scene, renderer;
+            var spheres = [];
+            var mouseX = 0,
+                mouseY = 0;
+            var windowHalfX = window.innerWidth / 2;
+            var windowHalfY = window.innerHeight / 2;
+            document.addEventListener('mousemove', onDocumentMouseMove, false);
+            init();
+            animate();
+
+            function init() {
+
+                camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 100000);
+                camera.position.z = 3200;
+                scene = new THREE.Scene();
+                scene.background = new THREE.CubeTextureLoader()
+                    .setPath('./personalizza/textures/MilkyWay/')
+                    .load(['px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg']);
+                renderer = new THREE.WebGLRenderer();
+                renderer.setPixelRatio(window.devicePixelRatio);
+                renderer.setSize(container.offsetWidth, container.offsetHeight);
+                container.appendChild(renderer.domElement);
+                window.addEventListener('resize', onWindowResize, false);
+            }
+
+            function onWindowResize() {
+                windowHalfX = window.innerWidth / 2;
+                windowHalfY = window.innerHeight / 2;
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+            function onDocumentMouseMove(event) {
+                mouseX = (event.clientX - windowHalfX) * 10;
+                mouseY = (event.clientY - windowHalfY) * 10;
+            }
+            //
+            function animate() {
+                requestAnimationFrame(animate);
+                render();
+            }
+
+            function render() {
+                camera.position.x += (mouseX - camera.position.x) * .05;
+                camera.position.y += (-mouseY - camera.position.y) * .05;
+                camera.lookAt(scene.position);
+                renderer.render(scene, camera);
+            }
+        </script>
+        <div class="intro-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="intro-message">
+                            <h1>ACME X-1</h1>
+                            <h3>Le scarpe da calcio che hai sempre sognato</h3>
+                            <hr class="intro-divider">
+                            <ul class="list-inline intro-social-buttons">
+                                <li>
+                                    <a href="#" class="btn btn-default btn-lg"><i class="fa fa-shopping-cart fa-fw"></i>
+                                        <span class="network-name">Aquista</span></a>
+                                </li>
+                                <li>
+                                    <a href="personalizza/personalizza.html" class="btn btn-default btn-lg"><i class="fa fa-paint-brush fa-fw"></i>
+                                        <span class="network-name">Personalizza</span></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.container -->
+
+        </div>
+        <!-- /.intro-header -->
+
+        <!-- Page Content -->
+
+        <a name="services"></a>
+        <div class="content-section-a">
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-5 col-sm-6">
+                        <hr class="section-heading-spacer">
+                        <div class="clearfix"></div>
+                        <h2 class="section-heading">Rendi unica la tua scarpa<br></h2>
+                        <p class="lead">Modifica ogni dettaglio della tua scarpa per renderla come vuoi tu!</p>
+                    </div>
+                    <div class="col-lg-5 col-lg-offset-2 col-sm-6">
+                        <img class="img-responsive" src="img/wire.png" alt="">
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.container -->
+
+        </div>
+        <!-- /.content-section-a -->
+
+        <div class="content-section-b">
+
+            <div class="container">
+
+                <div class="row">
+                    <div class="col-lg-5 col-lg-offset-1 col-sm-push-6  col-sm-6">
+                        <hr class="section-heading-spacer">
+                        <div class="clearfix"></div>
+                        <h2 class="section-heading">Comoda e sicura</h2>
+                        <p class="lead">Non rischiare infortuni inutili, la X-1 protegge il tuo piede dagli urti!</p>
+                    </div>
+                    <div class="col-lg-5 col-sm-pull-6  col-sm-6">
+                        <img class="img-responsive" src="img/render1.png" alt="">
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.container -->
+
+        </div>
+        <!-- /.content-section-b -->
+
+        <a name="contact"></a>
+        <div class="banner">
+
+            <div class="container">
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h2>Acquista subito</h2>
+                    </div>
+                    <div class="col-lg-6">
+                        <ul class="list-inline banner-social-buttons">
+                            <li>
+                                <a href="#" class="btn btn-default btn-lg"><i class="fa fa-shopping-cart fa-fw"></i>
+                                    <span class="network-name">Aquista</span></a>
+                            </li>
+                            <li>
+                                <a href="personalizza/personalizza.html" class="btn btn-default btn-lg"><i class="fa fa-paint-brush fa-fw"></i>
+                                    <span class="network-name">Personalizza</span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.container -->
+
+        </div>
+
+        <!-- jQuery -->
+        <script src="js/jquery.js"></script>
+
+        <!-- Bootstrap Core JavaScript -->
+        <script src="js/bootstrap.min.js"></script>
+    </body>
 
 </html>
