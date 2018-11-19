@@ -10,9 +10,9 @@ Per poter riprodurre correttamente il progetto è necessario eseguirlo in locale
 Il modello della scarpa è stato esportato in glTF. Per la gestione degli shader e dei materiali è stato utilizzato il MeshPhysicalMaterial di threejs.
 Questo viene usato per applicare un materiale PBR per aumentare i dettagli e la fedeltà della scena.
 In dettaglio la brdf viene definita attraverso il modello delle microsfaccettature, questo sfrutta la componente lambertiana per calcolare il valore diffuso
+
 <img src="https://latex.codecogs.com/gif.latex?%5Cinline%20f%28l%2Cv%29%3D%5Cmathrm%7Bdiffuse%7D&plus;%20%5Cfrac%7BD%28%5Ctheta%20h%29F%28%5Ctheta%20d%29G%28%5Ctheta%20l%2C%5Ctheta%20v%29%20%7D%7B4cos%5Ctheta%20l%20cos%5Ctheta%20v%7D"/>
 
-$f(l,v)=\mathrm{diffuse}+ \frac{D(\theta h)F(\theta d)G(\theta l,\theta v)}{4cos\theta l cos\theta v}$
 
 indicando con:
 
